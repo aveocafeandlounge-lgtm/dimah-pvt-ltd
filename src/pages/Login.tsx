@@ -44,15 +44,6 @@ export default function Login() {
     }
   };
 
-  const demoUsers = [
-    { email: 'admin@dimah.mv', role: 'Super Admin', name: 'Ahmed Mohamed' },
-    { email: 'inventory@dimah.mv', role: 'Inventory Manager', name: 'Fatima Ali' },
-    { email: 'head.finance@dimah.mv', role: 'Approver (Finance)', name: 'Ibrahim Hassan' },
-    { email: 'head.it@dimah.mv', role: 'Approver (IT)', name: 'Aisha Ahmed' },
-    { email: 'staff1@dimah.mv', role: 'Staff (Finance)', name: 'Mohamed Niyaz' },
-    { email: 'staff2@dimah.mv', role: 'Staff (IT)', name: 'Sarah Ali' },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -63,9 +54,6 @@ export default function Login() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Dimah PVT LTD</h1>
             <p className="text-gray-600 mt-2">Office Inventory Management System</p>
-            <span className="inline-block mt-3 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
-              Demo Mode
-            </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -112,29 +100,6 @@ export default function Login() {
               Sign In
             </button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 mb-3 font-medium">Demo Users (any password):</p>
-            <div className="space-y-2">
-              {demoUsers.map((user) => (
-                <button
-                  key={user.email}
-                  type="button"
-                  onClick={() => {
-                    setEmail(user.email);
-                    if (login(user.email)) {
-                      navigate('/dashboard');
-                    }
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-lg transition"
-                >
-                  <div className="font-medium text-gray-900">{user.name}</div>
-                  <div className="text-gray-600">{user.email}</div>
-                  <div className="text-blue-600 text-xs">{user.role}</div>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-6">
