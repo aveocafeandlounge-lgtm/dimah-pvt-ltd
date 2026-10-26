@@ -138,161 +138,299 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addInventoryItem = async (item: InventoryItem) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'inventory', item.id), item);
+      try {
+        await setDoc(doc(db, 'inventory', item.id), item);
+        console.log('Item saved to Firestore:', item.id);
+      } catch (error) {
+        console.error('Error saving item to Firestore:', error);
+        throw error;
+      }
     }
     setInventoryItems(prev => [...prev, item]);
   };
 
   const updateInventoryItem = async (id: string, updates: Partial<InventoryItem>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'inventory', id), { ...updates, updatedAt: new Date() });
+      try {
+        await updateDoc(doc(db, 'inventory', id), { ...updates, updatedAt: new Date() });
+        console.log('Item updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating item in Firestore:', error);
+        throw error;
+      }
     }
     setInventoryItems(prev => prev.map(item => item.id === id ? { ...item, ...updates, updatedAt: new Date() } : item));
   };
 
   const deleteInventoryItem = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'inventory', id));
+      try {
+        await deleteDoc(doc(db, 'inventory', id));
+        console.log('Item deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting item from Firestore:', error);
+        throw error;
+      }
     }
     setInventoryItems(prev => prev.filter(item => item.id !== id));
   };
 
   const addStockRequest = async (request: StockRequest) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'stockRequests', request.id), request);
+      try {
+        await setDoc(doc(db, 'stockRequests', request.id), request);
+        console.log('Stock request saved to Firestore:', request.id);
+      } catch (error) {
+        console.error('Error saving stock request to Firestore:', error);
+        throw error;
+      }
     }
     setStockRequests(prev => [...prev, request]);
   };
 
   const updateStockRequest = async (id: string, updates: Partial<StockRequest>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'stockRequests', id), { ...updates, updatedAt: new Date() });
+      try {
+        await updateDoc(doc(db, 'stockRequests', id), { ...updates, updatedAt: new Date() });
+        console.log('Stock request updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating stock request in Firestore:', error);
+        throw error;
+      }
     }
     setStockRequests(prev => prev.map(req => req.id === id ? { ...req, ...updates, updatedAt: new Date() } : req));
   };
 
   const deleteStockRequest = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'stockRequests', id));
+      try {
+        await deleteDoc(doc(db, 'stockRequests', id));
+        console.log('Stock request deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting stock request from Firestore:', error);
+        throw error;
+      }
     }
     setStockRequests(prev => prev.filter(req => req.id !== id));
   };
 
   const addStockReceipt = async (receipt: StockReceipt) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'stockReceipts', receipt.id), receipt);
+      try {
+        await setDoc(doc(db, 'stockReceipts', receipt.id), receipt);
+        console.log('Stock receipt saved to Firestore:', receipt.id);
+      } catch (error) {
+        console.error('Error saving stock receipt to Firestore:', error);
+        throw error;
+      }
     }
     setStockReceipts(prev => [...prev, receipt]);
   };
 
   const updateStockReceipt = async (id: string, updates: Partial<StockReceipt>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'stockReceipts', id), updates);
+      try {
+        await updateDoc(doc(db, 'stockReceipts', id), updates);
+        console.log('Stock receipt updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating stock receipt in Firestore:', error);
+        throw error;
+      }
     }
     setStockReceipts(prev => prev.map(receipt => receipt.id === id ? { ...receipt, ...updates } : receipt));
   };
 
   const deleteStockReceipt = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'stockReceipts', id));
+      try {
+        await deleteDoc(doc(db, 'stockReceipts', id));
+        console.log('Stock receipt deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting stock receipt from Firestore:', error);
+        throw error;
+      }
     }
     setStockReceipts(prev => prev.filter(receipt => receipt.id !== id));
   };
 
   const addStockIssue = async (issue: StockIssue) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'stockIssues', issue.id), issue);
+      try {
+        await setDoc(doc(db, 'stockIssues', issue.id), issue);
+        console.log('Stock issue saved to Firestore:', issue.id);
+      } catch (error) {
+        console.error('Error saving stock issue to Firestore:', error);
+        throw error;
+      }
     }
     setStockIssues(prev => [...prev, issue]);
   };
 
   const addStockTransaction = async (transaction: StockTransaction) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'stockTransactions', transaction.id), transaction);
+      try {
+        await setDoc(doc(db, 'stockTransactions', transaction.id), transaction);
+        console.log('Stock transaction saved to Firestore:', transaction.id);
+      } catch (error) {
+        console.error('Error saving stock transaction to Firestore:', error);
+        throw error;
+      }
     }
     setStockTransactions(prev => [...prev, transaction]);
   };
 
   const addCategory = async (category: Category) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'categories', category.id), category);
+      try {
+        await setDoc(doc(db, 'categories', category.id), category);
+        console.log('Category saved to Firestore:', category.id);
+      } catch (error) {
+        console.error('Error saving category to Firestore:', error);
+        throw error;
+      }
     }
     setCategories(prev => [...prev, category]);
   };
 
   const updateCategory = async (id: string, updates: Partial<Category>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'categories', id), { ...updates, updatedAt: new Date() });
+      try {
+        await updateDoc(doc(db, 'categories', id), { ...updates, updatedAt: new Date() });
+        console.log('Category updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating category in Firestore:', error);
+        throw error;
+      }
     }
     setCategories(prev => prev.map(cat => cat.id === id ? { ...cat, ...updates, updatedAt: new Date() } : cat));
   };
 
   const deleteCategory = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'categories', id));
+      try {
+        await deleteDoc(doc(db, 'categories', id));
+        console.log('Category deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting category from Firestore:', error);
+        throw error;
+      }
     }
     setCategories(prev => prev.filter(cat => cat.id !== id));
   };
 
   const addSupplier = async (supplier: Supplier) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'suppliers', supplier.id), supplier);
+      try {
+        await setDoc(doc(db, 'suppliers', supplier.id), supplier);
+        console.log('Supplier saved to Firestore:', supplier.id);
+      } catch (error) {
+        console.error('Error saving supplier to Firestore:', error);
+        throw error;
+      }
     }
     setSuppliers(prev => [...prev, supplier]);
   };
 
   const updateSupplier = async (id: string, updates: Partial<Supplier>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'suppliers', id), { ...updates, updatedAt: new Date() });
+      try {
+        await updateDoc(doc(db, 'suppliers', id), { ...updates, updatedAt: new Date() });
+        console.log('Supplier updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating supplier in Firestore:', error);
+        throw error;
+      }
     }
     setSuppliers(prev => prev.map(supp => supp.id === id ? { ...supp, ...updates, updatedAt: new Date() } : supp));
   };
 
   const deleteSupplier = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'suppliers', id));
+      try {
+        await deleteDoc(doc(db, 'suppliers', id));
+        console.log('Supplier deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting supplier from Firestore:', error);
+        throw error;
+      }
     }
     setSuppliers(prev => prev.filter(supp => supp.id !== id));
   };
 
   const addDepartment = async (department: Department) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'departments', department.id), department);
+      try {
+        await setDoc(doc(db, 'departments', department.id), department);
+        console.log('Department saved to Firestore:', department.id);
+      } catch (error) {
+        console.error('Error saving department to Firestore:', error);
+        throw error;
+      }
     }
     setDepartments(prev => [...prev, department]);
   };
 
   const updateDepartment = async (id: string, updates: Partial<Department>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'departments', id), { ...updates, updatedAt: new Date() });
+      try {
+        await updateDoc(doc(db, 'departments', id), { ...updates, updatedAt: new Date() });
+        console.log('Department updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating department in Firestore:', error);
+        throw error;
+      }
     }
     setDepartments(prev => prev.map(dept => dept.id === id ? { ...dept, ...updates, updatedAt: new Date() } : dept));
   };
 
   const deleteDepartment = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'departments', id));
+      try {
+        await deleteDoc(doc(db, 'departments', id));
+        console.log('Department deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting department from Firestore:', error);
+        throw error;
+      }
     }
     setDepartments(prev => prev.filter(dept => dept.id !== id));
   };
 
   const addStaff = async (staffMember: Staff) => {
     if (!isDemoMode) {
-      await setDoc(doc(db, 'staff', staffMember.id), staffMember);
+      try {
+        await setDoc(doc(db, 'staff', staffMember.id), staffMember);
+        console.log('Staff saved to Firestore:', staffMember.id);
+      } catch (error) {
+        console.error('Error saving staff to Firestore:', error);
+        throw error;
+      }
     }
     setStaff(prev => [...prev, staffMember]);
   };
 
   const updateStaff = async (id: string, updates: Partial<Staff>) => {
     if (!isDemoMode) {
-      await updateDoc(doc(db, 'staff', id), { ...updates, updatedAt: new Date() });
+      try {
+        await updateDoc(doc(db, 'staff', id), { ...updates, updatedAt: new Date() });
+        console.log('Staff updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating staff in Firestore:', error);
+        throw error;
+      }
     }
     setStaff(prev => prev.map(s => s.id === id ? { ...s, ...updates, updatedAt: new Date() } : s));
   };
 
   const deleteStaff = async (id: string) => {
     if (!isDemoMode) {
-      await deleteDoc(doc(db, 'staff', id));
+      try {
+        await deleteDoc(doc(db, 'staff', id));
+        console.log('Staff deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting staff from Firestore:', error);
+        throw error;
+      }
     }
     setStaff(prev => prev.filter(s => s.id !== id));
   };
