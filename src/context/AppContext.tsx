@@ -49,7 +49,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [isDemoMode, _setIsDemoMode] = useState(true);
+  const [isDemoMode, _setIsDemoMode] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, _setUsers] = useState<User[]>(demoUsers);
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(demoInventoryItems);
@@ -70,6 +70,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentUser(JSON.parse(savedUser));
       }
     } else {
+      // Load data from Firestore on mount
+      const loadFirestoreData = async () => {
+        try {
+          const [inventorySnap, categoriesSnap, suppliersSnap, departmentsSnap, staffSnap, requestsSnap, receiptsSnap, issuesSnap, transactionsSnap] = await Promise.all([
+            getDocs(collection(db, 'inventory')),
+            getDocs(collection(db, 'categories')),
+            getDocs(collection(db, 'suppliers')),
+            getDocs(collection(db, 'departments')),
+            getDocs(collection(db, 'staff')),
+            getDocs(collection(db, 'stockRequests')),
+            getDocs(collection(db, 'stockReceipts')),
+            getDocs(collection(db, 'stockIssues')),
+            getDocs(collection(db, 'stockTransactions')),
+          ]);
+
+          setInventoryItems(inventorySnap.docs.map(doc => doc.data() as InventoryItem));
+          setCategories(categoriesSnap.docs.map(doc => doc.data() as Category));
+          setSuppliers(suppliersSnap.docs.map(doc => doc.data() as Supplier));
+          setDepartments(departmentsSnap.docs.map(doc => doc.data() as Department));
+          setStaff(staffSnap.docs.map(doc => doc.data() as Staff));
+          setStockRequests(requestsSnap.docs.map(doc => doc.data() as StockRequest));
+          setStockReceipts(receiptsSnap.docs.map(doc => doc.data() as StockReceipt));
+          setStockIssues(issuesSnap.docs.map(doc => doc.data() as StockIssue));
+          setStockTransactions(transactionsSnap.docs.map(doc => doc.data() as StockTransaction));
+        } catch (error) {
+          console.error('Error loading Firestore data:', error);
+        }
+      };
+
+      loadFirestoreData();
+
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
           // Fetch user data from Firestore
