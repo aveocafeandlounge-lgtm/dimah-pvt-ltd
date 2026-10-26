@@ -14,7 +14,8 @@ export default function Categories() {
     description: '',
   });
 
-  const canManage = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canManage = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'inventory_clerk';
+  const canDelete = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
 
   const filteredCategories = categories;
 
@@ -175,12 +176,14 @@ export default function Categories() {
                           >
                             Edit
                           </button>
-                          <button
-                            onClick={() => handleDelete(category.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
-                          >
-                            Delete
-                          </button>
+                          {canDelete && (
+                            <button
+                              onClick={() => handleDelete(category.id)}
+                              className="text-red-600 hover:text-red-800 text-sm font-medium"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
                       )}
                     </td>

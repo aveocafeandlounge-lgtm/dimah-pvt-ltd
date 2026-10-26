@@ -25,16 +25,17 @@ export default function Navigation() {
   };
 
   const navItems = [
-    { title: 'Dashboard', icon: FolderOpen, path: '/dashboard' },
-    { title: 'Inventory', icon: Package, path: '/inventory' },
-    { title: 'Categories', icon: Layers, path: '/categories' },
-    { title: 'Staff', icon: Users, path: '/staff' },
-    { title: 'Departments', icon: Building2, path: '/departments' },
-    { title: 'Suppliers', icon: Truck, path: '/suppliers' },
-    { title: 'Requests', icon: Package, path: '/requests' },
-    { title: 'Approvals', icon: CheckCircle, path: '/approvals' },
-    { title: 'Stock Ledger', icon: TrendingUp, path: '/stock/ledger' },
-    { title: 'Reports', icon: TrendingUp, path: '/reports' },
+    { title: 'Dashboard', icon: FolderOpen, path: '/dashboard', roles: ['super_admin', 'inventory_manager', 'inventory_clerk', 'approver', 'staff'] },
+    { title: 'Inventory', icon: Package, path: '/inventory', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
+    { title: 'Categories', icon: Layers, path: '/categories', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
+    { title: 'Staff', icon: Users, path: '/staff', roles: ['super_admin'] },
+    { title: 'Departments', icon: Building2, path: '/departments', roles: ['super_admin'] },
+    { title: 'Suppliers', icon: Truck, path: '/suppliers', roles: ['super_admin', 'inventory_manager'] },
+    { title: 'Users', icon: CheckCircle, path: '/users', roles: ['super_admin'] },
+    { title: 'Requests', icon: Package, path: '/requests', roles: ['super_admin', 'inventory_manager', 'inventory_clerk', 'staff'] },
+    { title: 'Approvals', icon: CheckCircle, path: '/approvals', roles: ['super_admin', 'inventory_manager', 'approver'] },
+    { title: 'Stock Ledger', icon: TrendingUp, path: '/stock/ledger', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
+    { title: 'Reports', icon: TrendingUp, path: '/reports', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
   ];
 
   const currentPath = window.location.pathname;
@@ -73,7 +74,9 @@ export default function Navigation() {
           </div>
 
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {navItems.map((item) => (
+            {navItems
+              .filter(item => item.roles.includes(currentUser?.role || 'staff'))
+              .map((item) => (
               <button
                 key={item.path}
                 onClick={() => {

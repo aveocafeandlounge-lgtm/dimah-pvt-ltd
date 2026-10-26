@@ -21,6 +21,9 @@ interface AppContextType {
   suppliers: Supplier[];
   login: (email: string) => boolean;
   logout: () => Promise<void>;
+  addUser: (user: User) => Promise<void>;
+  updateUser: (id: string, user: Partial<User>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
   addInventoryItem: (item: InventoryItem) => Promise<void>;
   updateInventoryItem: (id: string, item: Partial<InventoryItem>) => Promise<void>;
   deleteInventoryItem: (id: string) => Promise<void>;
@@ -516,6 +519,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStaff(prev => prev.filter(s => s.id !== id));
   };
 
+  const addUser = async (user: User) => {
+    if (!isDemoMode) {
+      try {
+        const cleanUser = Object.fromEntries(
+          Object.entries(user).filter(([_, v]) => v !== undefined)
+        ) as User;
+        await setDoc(doc(db, 'users', cleanUser.id), cleanUser);
+        console.log('User saved to Firestore:', cleanUser.id);
+      } catch (error) {
+        console.error('Error saving user to Firestore:', error);
+        throw error;
+      }
+    }
+    _setUsers(prev => [...prev, user]);
+  };
+
+  const updateUser = async (id: string, updates: Partial<User>) => {
+    if (!isDemoMode) {
+      try {
+        const cleanUpdates = Object.fromEntries(
+          Object.entries(updates).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'users', id), cleanUpdates);
+        console.log('User updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating user in Firestore:', error);
+        throw error;
+      }
+    }
+    _setUsers(prev => prev.map(u => u.id === id ? { ...u, ...updates } : u));
+  };
+
+  const deleteUser = async (id: string) => {
+    if (!isDemoMode) {
+      try {
+        await deleteDoc(doc(db, 'users', id));
+        console.log('User deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting user from Firestore:', error);
+        throw error;
+      }
+    }
+    _setUsers(prev => prev.filter(u => u.id !== id));
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -533,6 +581,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         suppliers,
         login,
         logout,
+        addUser,
+        updateUser,
+        deleteUser,
         addInventoryItem,
         updateInventoryItem,
         deleteInventoryItem,

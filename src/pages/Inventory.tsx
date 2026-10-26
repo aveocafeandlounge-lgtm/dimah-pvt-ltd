@@ -14,7 +14,8 @@ export default function Inventory() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-  const canEdit = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canEdit = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'inventory_clerk';
+  const canDelete = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
 
   const units: Unit[] = ['piece', 'box', 'pack', 'ream', 'bottle', 'roll', 'set', 'carton', 'kilogram', 'litre', 'other'];
 
@@ -199,11 +200,10 @@ export default function Inventory() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
                 <select
                   name="unit"
                   defaultValue={editingItem?.unit}
-                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 >
                   {units.map((unit) => (
@@ -297,12 +297,11 @@ export default function Inventory() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unit Cost (MVR) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Unit Cost (MVR)</label>
                 <input
                   type="number"
                   name="unitCost"
                   defaultValue={editingItem?.unitCost}
-                  required
                   min="0"
                   step="0.01"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -404,13 +403,15 @@ export default function Inventory() {
                       <Edit className="w-4 h-4" />
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition text-sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </button>
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition text-sm"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

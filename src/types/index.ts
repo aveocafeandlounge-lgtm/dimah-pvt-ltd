@@ -1,5 +1,5 @@
 // User Roles
-export type UserRole = 'super_admin' | 'inventory_manager' | 'approver' | 'staff';
+export type UserRole = 'super_admin' | 'inventory_manager' | 'inventory_clerk' | 'approver' | 'staff';
 
 // User
 export interface User {
