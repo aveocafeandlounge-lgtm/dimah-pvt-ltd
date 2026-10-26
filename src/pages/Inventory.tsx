@@ -94,16 +94,25 @@ export default function Inventory() {
             </div>
           </div>
           {canEdit && (
-            <button
-              onClick={() => {
-                setEditingItem(null);
-                setShowAddForm(true);
-              }}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">Add Item</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/categories')}
+                className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="hidden sm:inline">Add Category</span>
+              </button>
+              <button
+                onClick={() => {
+                  setEditingItem(null);
+                  setShowAddForm(true);
+                }}
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="hidden sm:inline">Add Item</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
