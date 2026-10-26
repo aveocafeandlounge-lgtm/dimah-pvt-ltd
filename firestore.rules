@@ -2,6 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // DEVELOPMENT MODE - Allow full access for all authenticated users
+    // Comment out the rules below and uncomment the production rules for secure deployment
+    
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    /* 
+    // PRODUCTION RULES - Role-based access control
+    // Uncomment this section for production deployment
+    
     // Helper function to check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
@@ -104,5 +115,6 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if false; // Transactions are created by system only
     }
+    */
   }
 }
