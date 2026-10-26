@@ -29,7 +29,7 @@ export default function Suppliers() {
   const filteredSuppliers = suppliers.filter(supp =>
     supp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     supp.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    supp.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
+    (supp.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,12 +80,12 @@ export default function Suppliers() {
     setFormData({
       name: supplier.name,
       code: supplier.code,
-      contactPerson: supplier.contactPerson,
+      contactPerson: supplier.contactPerson || '',
       email: supplier.email || '',
       phone: supplier.phone,
       address: supplier.address || '',
       city: supplier.city || '',
-      country: supplier.country,
+      country: supplier.country || '',
       paymentTerms: supplier.paymentTerms || '',
       notes: supplier.notes || '',
     });
