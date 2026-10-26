@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Check, X, ArrowLeft, Clock, Package, AlertTriangle, User, Calendar } from 'lucide-react';
+import { Check, X, Clock, Package, AlertTriangle, User, Calendar } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 import type { RequestStatus } from '../types';
+import Navigation from '../components/Navigation';
 
 export default function Approvals() {
   const navigate = useNavigate();
@@ -12,12 +13,16 @@ export default function Approvals() {
   const [approvalComments, setApprovalComments] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [itemApprovals, setItemApprovals] = useState<Record<string, number>>({});
+  const [statusFilter, setStatusFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
 
   const canApprove = currentUser?.role === 'super_admin' || currentUser?.role === 'approver' || currentUser?.role === 'inventory_manager';
 
-  const pendingRequests = stockRequests.filter(req =>
-    req.status === 'submitted' || req.status === 'pending_approval'
-  );
+  const filteredRequests = stockRequests.filter(req => {
+    if (statusFilter === 'pending') return req.status === 'submitted' || req.status === 'pending_approval';
+    if (statusFilter === 'approved') return req.status === 'approved' || req.status === 'partially_approved' || req.status === 'ready_for_collection' || req.status === 'issued' || req.status === 'completed';
+    if (statusFilter === 'rejected') return req.status === 'rejected';
+    return true;
+  });
 
   const selectedRequestData = selectedRequest ? stockRequests.find(req => req.id === selectedRequest) : null;
 
@@ -108,35 +113,78 @@ export default function Approvals() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-gray-100 rounded-lg">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      <Navigation />
+      <div className="flex-1 lg:ml-64 mt-14 lg:mt-0">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Approvals</h1>
               <p className="text-gray-600 text-sm">Review and approve stock requests</p>
             </div>
           </div>
         </div>
-      </div>
 
       <div className="max-w-7xl mx-auto p-4 lg:p-8">
-        {pendingRequests.length === 0 ? (
+        {/* Status Filter Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setStatusFilter('pending')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                statusFilter === 'pending'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Pending ({stockRequests.filter(req => req.status === 'submitted' || req.status === 'pending_approval').length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('approved')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                statusFilter === 'approved'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Approved ({stockRequests.filter(req => req.status === 'approved' || req.status === 'partially_approved' || req.status === 'ready_for_collection' || req.status === 'issued' || req.status === 'completed').length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('rejected')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                statusFilter === 'rejected'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Rejected ({stockRequests.filter(req => req.status === 'rejected').length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                statusFilter === 'all'
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              All ({stockRequests.length})
+            </button>
+          </div>
+        </div>
+
+        {filteredRequests.length === 0 ? (
           <div className="text-center py-12">
             <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Pending Approvals</h2>
-            <p className="text-gray-600">There are no requests awaiting approval at this time.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Requests Found</h2>
+            <p className="text-gray-600">There are no requests with the selected status.</p>
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Request List */}
             <div className="lg:col-span-1 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Pending Requests ({pendingRequests.length})</h2>
-              {pendingRequests.map((request) => {
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Requests ({filteredRequests.length})</h2>
+              {filteredRequests.map((request) => {
                 const requester = staff.find(s => s.id === request.requestingStaff);
                 return (
                   <button
@@ -339,6 +387,7 @@ export default function Approvals() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

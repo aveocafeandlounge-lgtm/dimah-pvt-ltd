@@ -9,8 +9,14 @@ export function generateId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | any): string {
+  if (!date) return '';
+  // Handle Firestore Timestamp
+  if (date && typeof date.toDate === 'function') {
+    date = date.toDate();
+  }
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (!(d instanceof Date) || isNaN(d.getTime())) return '';
   return d.toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',

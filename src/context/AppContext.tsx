@@ -70,9 +70,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentUser(JSON.parse(savedUser));
       }
     } else {
+      console.log('Firebase mode enabled. Setting up auth listener...');
+      
       // Load data from Firestore on mount
       const loadFirestoreData = async () => {
         try {
+          console.log('Loading Firestore data...');
           const [inventorySnap, categoriesSnap, suppliersSnap, departmentsSnap, staffSnap, requestsSnap, receiptsSnap, issuesSnap, transactionsSnap] = await Promise.all([
             getDocs(collection(db, 'inventory')),
             getDocs(collection(db, 'categories')),
@@ -94,6 +97,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setStockReceipts(receiptsSnap.docs.map(doc => doc.data() as StockReceipt));
           setStockIssues(issuesSnap.docs.map(doc => doc.data() as StockIssue));
           setStockTransactions(transactionsSnap.docs.map(doc => doc.data() as StockTransaction));
+          console.log('Firestore data loaded successfully');
         } catch (error) {
           console.error('Error loading Firestore data:', error);
         }
@@ -102,14 +106,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
       loadFirestoreData();
 
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'No user');
         if (firebaseUser) {
+          console.log('Firebase user:', firebaseUser.email, firebaseUser.uid);
           // Fetch user data from Firestore
-          const userDoc = await getDocs(query(collection(db, 'users'), where('email', '==', firebaseUser.email)));
-          if (!userDoc.empty) {
-            const userData = userDoc.docs[0].data() as User;
-            setCurrentUser(userData);
+          try {
+            const userDoc = await getDocs(query(collection(db, 'users'), where('email', '==', firebaseUser.email)));
+            if (!userDoc.empty) {
+              const userData = userDoc.docs[0].data() as User;
+              console.log('User data loaded from Firestore:', userData);
+              setCurrentUser(userData);
+            } else {
+              console.warn('No user document found in Firestore for email:', firebaseUser.email);
+              // Set default super admin role for manager@dimah.com
+              if (firebaseUser.email === 'manager@dimah.com') {
+                const defaultUser: User = {
+                  id: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  name: 'Super Admin',
+                  role: 'super_admin',
+                  isActive: true,
+                  createdAt: new Date(),
+                };
+                console.log('Setting default super admin role for manager@dimah.com');
+                setCurrentUser(defaultUser);
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching user data from Firestore:', error);
           }
         } else {
+          console.log('No Firebase user, setting currentUser to null');
           setCurrentUser(null);
         }
       });
@@ -139,8 +166,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addInventoryItem = async (item: InventoryItem) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'inventory', item.id), item);
-        console.log('Item saved to Firestore:', item.id);
+        // Remove undefined fields before saving to Firestore
+        const cleanItem = Object.fromEntries(
+          Object.entries(item).filter(([_, v]) => v !== undefined)
+        ) as InventoryItem;
+        await setDoc(doc(db, 'inventory', cleanItem.id), cleanItem);
+        console.log('Item saved to Firestore:', cleanItem.id);
       } catch (error) {
         console.error('Error saving item to Firestore:', error);
         throw error;
@@ -178,8 +209,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addStockRequest = async (request: StockRequest) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'stockRequests', request.id), request);
-        console.log('Stock request saved to Firestore:', request.id);
+        const cleanRequest = Object.fromEntries(
+          Object.entries(request).filter(([_, v]) => v !== undefined)
+        ) as StockRequest;
+        await setDoc(doc(db, 'stockRequests', cleanRequest.id), cleanRequest);
+        console.log('Stock request saved to Firestore:', cleanRequest.id);
       } catch (error) {
         console.error('Error saving stock request to Firestore:', error);
         throw error;
@@ -191,7 +225,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateStockRequest = async (id: string, updates: Partial<StockRequest>) => {
     if (!isDemoMode) {
       try {
-        await updateDoc(doc(db, 'stockRequests', id), { ...updates, updatedAt: new Date() });
+        const cleanUpdates = Object.fromEntries(
+          Object.entries({ ...updates, updatedAt: new Date() }).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'stockRequests', id), cleanUpdates);
         console.log('Stock request updated in Firestore:', id);
       } catch (error) {
         console.error('Error updating stock request in Firestore:', error);
@@ -217,8 +254,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addStockReceipt = async (receipt: StockReceipt) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'stockReceipts', receipt.id), receipt);
-        console.log('Stock receipt saved to Firestore:', receipt.id);
+        const cleanReceipt = Object.fromEntries(
+          Object.entries(receipt).filter(([_, v]) => v !== undefined)
+        ) as StockReceipt;
+        await setDoc(doc(db, 'stockReceipts', cleanReceipt.id), cleanReceipt);
+        console.log('Stock receipt saved to Firestore:', cleanReceipt.id);
       } catch (error) {
         console.error('Error saving stock receipt to Firestore:', error);
         throw error;
@@ -230,7 +270,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateStockReceipt = async (id: string, updates: Partial<StockReceipt>) => {
     if (!isDemoMode) {
       try {
-        await updateDoc(doc(db, 'stockReceipts', id), updates);
+        const cleanUpdates = Object.fromEntries(
+          Object.entries(updates).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'stockReceipts', id), cleanUpdates);
         console.log('Stock receipt updated in Firestore:', id);
       } catch (error) {
         console.error('Error updating stock receipt in Firestore:', error);
@@ -256,8 +299,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addStockIssue = async (issue: StockIssue) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'stockIssues', issue.id), issue);
-        console.log('Stock issue saved to Firestore:', issue.id);
+        const cleanIssue = Object.fromEntries(
+          Object.entries(issue).filter(([_, v]) => v !== undefined)
+        ) as StockIssue;
+        await setDoc(doc(db, 'stockIssues', cleanIssue.id), cleanIssue);
+        console.log('Stock issue saved to Firestore:', cleanIssue.id);
       } catch (error) {
         console.error('Error saving stock issue to Firestore:', error);
         throw error;
@@ -269,8 +315,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addStockTransaction = async (transaction: StockTransaction) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'stockTransactions', transaction.id), transaction);
-        console.log('Stock transaction saved to Firestore:', transaction.id);
+        const cleanTransaction = Object.fromEntries(
+          Object.entries(transaction).filter(([_, v]) => v !== undefined)
+        ) as StockTransaction;
+        await setDoc(doc(db, 'stockTransactions', cleanTransaction.id), cleanTransaction);
+        console.log('Stock transaction saved to Firestore:', cleanTransaction.id);
       } catch (error) {
         console.error('Error saving stock transaction to Firestore:', error);
         throw error;
@@ -282,8 +331,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addCategory = async (category: Category) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'categories', category.id), category);
-        console.log('Category saved to Firestore:', category.id);
+        console.log('Attempting to save category to Firestore:', category);
+        const currentUser = auth.currentUser;
+        console.log('Current Firebase auth user:', currentUser?.email, currentUser?.uid);
+        if (!currentUser) {
+          console.error('No Firebase user authenticated!');
+          throw new Error('No Firebase user authenticated');
+        }
+        // Remove undefined fields before saving to Firestore
+        const cleanCategory = Object.fromEntries(
+          Object.entries(category).filter(([_, v]) => v !== undefined)
+        ) as Category;
+        await setDoc(doc(db, 'categories', cleanCategory.id), cleanCategory);
+        console.log('Category saved to Firestore:', cleanCategory.id);
       } catch (error) {
         console.error('Error saving category to Firestore:', error);
         throw error;
@@ -295,7 +355,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateCategory = async (id: string, updates: Partial<Category>) => {
     if (!isDemoMode) {
       try {
-        await updateDoc(doc(db, 'categories', id), { ...updates, updatedAt: new Date() });
+        const cleanUpdates = Object.fromEntries(
+          Object.entries({ ...updates, updatedAt: new Date() }).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'categories', id), cleanUpdates);
         console.log('Category updated in Firestore:', id);
       } catch (error) {
         console.error('Error updating category in Firestore:', error);
@@ -321,8 +384,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addSupplier = async (supplier: Supplier) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'suppliers', supplier.id), supplier);
-        console.log('Supplier saved to Firestore:', supplier.id);
+        const cleanSupplier = Object.fromEntries(
+          Object.entries(supplier).filter(([_, v]) => v !== undefined)
+        ) as Supplier;
+        await setDoc(doc(db, 'suppliers', cleanSupplier.id), cleanSupplier);
+        console.log('Supplier saved to Firestore:', cleanSupplier.id);
       } catch (error) {
         console.error('Error saving supplier to Firestore:', error);
         throw error;
@@ -334,7 +400,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateSupplier = async (id: string, updates: Partial<Supplier>) => {
     if (!isDemoMode) {
       try {
-        await updateDoc(doc(db, 'suppliers', id), { ...updates, updatedAt: new Date() });
+        const cleanUpdates = Object.fromEntries(
+          Object.entries({ ...updates, updatedAt: new Date() }).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'suppliers', id), cleanUpdates);
         console.log('Supplier updated in Firestore:', id);
       } catch (error) {
         console.error('Error updating supplier in Firestore:', error);
@@ -360,8 +429,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addDepartment = async (department: Department) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'departments', department.id), department);
-        console.log('Department saved to Firestore:', department.id);
+        const cleanDepartment = Object.fromEntries(
+          Object.entries(department).filter(([_, v]) => v !== undefined)
+        ) as Department;
+        await setDoc(doc(db, 'departments', cleanDepartment.id), cleanDepartment);
+        console.log('Department saved to Firestore:', cleanDepartment.id);
       } catch (error) {
         console.error('Error saving department to Firestore:', error);
         throw error;
@@ -373,7 +445,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateDepartment = async (id: string, updates: Partial<Department>) => {
     if (!isDemoMode) {
       try {
-        await updateDoc(doc(db, 'departments', id), { ...updates, updatedAt: new Date() });
+        const cleanUpdates = Object.fromEntries(
+          Object.entries({ ...updates, updatedAt: new Date() }).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'departments', id), cleanUpdates);
         console.log('Department updated in Firestore:', id);
       } catch (error) {
         console.error('Error updating department in Firestore:', error);
@@ -399,8 +474,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addStaff = async (staffMember: Staff) => {
     if (!isDemoMode) {
       try {
-        await setDoc(doc(db, 'staff', staffMember.id), staffMember);
-        console.log('Staff saved to Firestore:', staffMember.id);
+        const cleanStaff = Object.fromEntries(
+          Object.entries(staffMember).filter(([_, v]) => v !== undefined)
+        ) as Staff;
+        await setDoc(doc(db, 'staff', cleanStaff.id), cleanStaff);
+        console.log('Staff saved to Firestore:', cleanStaff.id);
       } catch (error) {
         console.error('Error saving staff to Firestore:', error);
         throw error;
@@ -412,7 +490,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateStaff = async (id: string, updates: Partial<Staff>) => {
     if (!isDemoMode) {
       try {
-        await updateDoc(doc(db, 'staff', id), { ...updates, updatedAt: new Date() });
+        const cleanUpdates = Object.fromEntries(
+          Object.entries({ ...updates, updatedAt: new Date() }).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'staff', id), cleanUpdates);
         console.log('Staff updated in Firestore:', id);
       } catch (error) {
         console.error('Error updating staff in Firestore:', error);

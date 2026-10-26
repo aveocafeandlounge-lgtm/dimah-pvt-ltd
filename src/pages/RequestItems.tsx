@@ -19,6 +19,9 @@ export default function RequestItems() {
   const [purpose, setPurpose] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [additionalNotes, setAdditionalNotes] = useState('');
+  const [requesterName, setRequesterName] = useState('');
+  const [requesterEmployeeId, setRequesterEmployeeId] = useState('');
+  const [requesterDepartment, setRequesterDepartment] = useState('');
   const [requestItems, setRequestItems] = useState<RequestItem[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'new'>('list');
@@ -61,11 +64,6 @@ export default function RequestItems() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!currentStaff) {
-      alert('Staff information not found');
-      return;
-    }
-
     if (requestItems.length === 0) {
       alert('Please add at least one item to your request');
       return;
@@ -73,6 +71,11 @@ export default function RequestItems() {
 
     if (!purpose) {
       alert('Please specify the purpose of this request');
+      return;
+    }
+
+    if (!requesterName || !requesterEmployeeId || !requesterDepartment) {
+      alert('Please fill in all requester information fields');
       return;
     }
 
@@ -97,6 +100,9 @@ export default function RequestItems() {
         purpose,
         priority,
         additionalNotes: additionalNotes || undefined,
+        requestingStaff: currentUser?.id || '',
+        employeeId: requesterEmployeeId,
+        department: requesterDepartment,
         updatedAt: new Date(),
       });
       setShowSuccess(true);
@@ -111,9 +117,9 @@ export default function RequestItems() {
       const request: StockRequest = {
         id: generateId('req'),
         requestNumber,
-        requestingStaff: currentStaff.id,
-        employeeId: currentStaff.employeeId,
-        department: currentStaff.department,
+        requestingStaff: currentUser?.id || '',
+        employeeId: requesterEmployeeId,
+        department: requesterDepartment,
         requestDate: new Date(),
         requiredDate: new Date(requiredDate),
         items: requestItems.map(item => ({
@@ -139,6 +145,9 @@ export default function RequestItems() {
       setPurpose('');
       setPriority('medium');
       setAdditionalNotes('');
+      setRequesterName('');
+      setRequesterEmployeeId('');
+      setRequesterDepartment('');
       setRequestItems([]);
 
       setTimeout(() => {
@@ -308,22 +317,37 @@ export default function RequestItems() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Requester Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                {currentStaff?.name || currentUser?.name}
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+              <input
+                type="text"
+                value={requesterName || currentStaff?.name || currentUser?.name || ''}
+                onChange={(e) => setRequesterName(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                placeholder="Enter your name"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
-              <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                {currentStaff?.employeeId || currentUser?.employeeId}
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID *</label>
+              <input
+                type="text"
+                value={requesterEmployeeId || currentStaff?.employeeId || ''}
+                onChange={(e) => setRequesterEmployeeId(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                placeholder="Enter employee ID"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-              <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                {currentStaff?.department || currentUser?.department}
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+              <input
+                type="text"
+                value={requesterDepartment || currentStaff?.department || currentUser?.department || ''}
+                onChange={(e) => setRequesterDepartment(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                placeholder="Enter department"
+              />
             </div>
           </div>
         </div>

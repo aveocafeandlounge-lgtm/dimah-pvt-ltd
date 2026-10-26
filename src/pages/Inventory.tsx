@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Package, Plus, Search, Edit, Trash2, AlertTriangle, XCircle, ArrowLeft } from 'lucide-react';
+import { Package, Plus, Search, Edit, Trash2, AlertTriangle, XCircle } from 'lucide-react';
 import { generateId } from '../utils/helpers';
 import type { InventoryItem, Unit } from '../types';
+import Navigation from '../components/Navigation';
 
 export default function Inventory() {
   const navigate = useNavigate();
-  const { inventoryItems, categories, suppliers, currentUser, addInventoryItem, updateInventoryItem } = useApp();
+  const { inventoryItems, categories, suppliers, currentUser, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -69,7 +70,7 @@ export default function Inventory() {
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      updateInventoryItem(id, { isActive: false });
+      deleteInventoryItem(id);
     }
   };
 
@@ -80,19 +81,16 @@ export default function Inventory() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-gray-100 rounded-lg">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      <Navigation />
+      <div className="flex-1 lg:ml-64 mt-14 lg:mt-0">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
               <p className="text-gray-600 text-sm">Manage office stationery and supplies</p>
             </div>
-          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/categories')}
@@ -426,6 +424,7 @@ export default function Inventory() {
             <p className="text-gray-500">No items found</p>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

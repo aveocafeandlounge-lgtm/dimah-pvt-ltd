@@ -15,6 +15,7 @@ export default function Login() {
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError('');
+    console.log('Login attempt - Email:', email, 'Demo Mode:', isDemoMode);
 
     if (!email) {
       setError('Please enter your email');
@@ -22,13 +23,17 @@ export default function Login() {
     }
 
     if (isDemoMode) {
+      console.log('Using demo mode login');
       // Demo mode - use local authentication
       if (login(email)) {
+        console.log('Demo login successful');
         navigate('/dashboard');
       } else {
+        console.error('Demo login failed');
         setError('Invalid email or user not active');
       }
     } else {
+      console.log('Using Firebase authentication');
       // Firebase mode - use Firebase authentication
       if (!password) {
         setError('Please enter your password');
@@ -36,9 +41,12 @@ export default function Login() {
       }
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        console.log('Attempting Firebase sign in with email:', email);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log('Firebase sign in successful:', userCredential.user.email, userCredential.user.uid);
         navigate('/dashboard');
       } catch (err: any) {
+        console.error('Firebase sign in failed:', err);
         setError(err.message || 'Authentication failed');
       }
     }

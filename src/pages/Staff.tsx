@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { ArrowLeft, Plus, Edit2, Trash2, Search, Users, Mail, Phone } from 'lucide-react';
+import { Search, Edit, Trash2, Mail, Phone, Users } from 'lucide-react';
 import { generateId } from '../utils/helpers';
 import type { Staff } from '../types';
+import Navigation from '../components/Navigation';
 
 export default function Staff() {
-  const navigate = useNavigate();
   const { staff, departments, addStaff, updateStaff, deleteStaff, currentUser } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -97,45 +96,41 @@ export default function Staff() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-gray-100 rounded-lg">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      <Navigation />
+      <div className="flex-1 lg:ml-64 mt-14 lg:mt-0">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Staff</h1>
               <p className="text-gray-600 text-sm">Manage staff members</p>
             </div>
+            {canManage && (
+              <button
+                onClick={() => {
+                  setEditingStaff(null);
+                  setFormData({
+                    employeeId: '',
+                    name: '',
+                    department: '',
+                    designation: '',
+                    email: '',
+                    phone: '',
+                  });
+                  setShowForm(true);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Add Staff
+              </button>
+            )}
           </div>
-          {canManage && (
-            <button
-              onClick={() => {
-                setEditingStaff(null);
-                setFormData({
-                  employeeId: '',
-                  name: '',
-                  department: '',
-                  designation: '',
-                  email: '',
-                  phone: '',
-                });
-                setShowForm(true);
-              }}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">Add Staff</span>
-            </button>
-          )}
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-4 lg:p-8">
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="max-w-7xl mx-auto p-4 lg:p-8">
+          {/* Filters */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -311,7 +306,7 @@ export default function Staff() {
                             onClick={() => handleEdit(staffMember)}
                             className="p-1 hover:bg-blue-50 text-blue-600 rounded"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(staffMember.id)}
@@ -357,6 +352,7 @@ export default function Staff() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { ArrowLeft, Plus, Clock } from 'lucide-react';
+import { Plus, Clock } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 import type { RequestStatus } from '../types';
+import Navigation from '../components/Navigation';
 
 export default function Requests() {
   const navigate = useNavigate();
@@ -36,34 +37,31 @@ export default function Requests() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-gray-100 rounded-lg">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      <Navigation />
+      <div className="flex-1 lg:ml-64 mt-14 lg:mt-0">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Requests</h1>
               <p className="text-gray-600 text-sm">View and manage stock requests</p>
             </div>
+            {canCreate && (
+              <button
+                onClick={() => navigate('/requests/new')}
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="hidden sm:inline">New Request</span>
+              </button>
+            )}
           </div>
-          {canCreate && (
-            <button
-              onClick={() => navigate('/requests/new')}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">New Request</span>
-            </button>
-          )}
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-4 lg:p-8">
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="max-w-7xl mx-auto p-4 lg:p-8">
+          {/* Filters */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
@@ -166,6 +164,7 @@ export default function Requests() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
