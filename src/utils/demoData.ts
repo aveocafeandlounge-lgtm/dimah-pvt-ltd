@@ -1,7 +1,17 @@
 import type { User, Department, Staff, Category, InventoryItem, Supplier, StockReceipt, StockRequest, StockIssue, StockTransaction } from '../types';
 
-// Demo Users - Empty for production
-export const demoUsers: User[] = [];
+// Demo Users - Production admin user
+export const demoUsers: User[] = [
+  {
+    id: 'user-1',
+    email: 'manager@dimah.com',
+    name: 'Super Admin',
+    role: 'super_admin',
+    department: 'Management',
+    isActive: true,
+    createdAt: new Date('2026-01-01'),
+  },
+];
 
 // Demo Departments - Empty for production
 export const demoDepartments: Department[] = [];
