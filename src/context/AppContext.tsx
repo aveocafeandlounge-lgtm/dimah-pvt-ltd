@@ -168,8 +168,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addInventoryItem = async (item: InventoryItem) => {
     if (!isDemoMode) {
+      if (!currentUser) {
+        console.error('Cannot save item: No authenticated user');
+        throw new Error('User must be authenticated to save data');
+      }
       try {
-        // Remove undefined fields before saving to Firestore
         const cleanItem = Object.fromEntries(
           Object.entries(item).filter(([_, v]) => v !== undefined)
         ) as InventoryItem;
@@ -185,6 +188,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateInventoryItem = async (id: string, updates: Partial<InventoryItem>) => {
     if (!isDemoMode) {
+      if (!currentUser) {
+        console.error('Cannot update item: No authenticated user');
+        throw new Error('User must be authenticated to save data');
+      }
       try {
         await updateDoc(doc(db, 'inventory', id), { ...updates, updatedAt: new Date() });
         console.log('Item updated in Firestore:', id);
@@ -521,6 +528,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addUser = async (user: User) => {
     if (!isDemoMode) {
+      if (!currentUser) {
+        console.error('Cannot save user: No authenticated user');
+        throw new Error('User must be authenticated to save data');
+      }
       try {
         const cleanUser = Object.fromEntries(
           Object.entries(user).filter(([_, v]) => v !== undefined)

@@ -4,6 +4,8 @@ import { Plus, Search, Shield } from 'lucide-react';
 import { generateId } from '../utils/helpers';
 import type { User } from '../types';
 import Navigation from '../components/Navigation';
+import { auth } from '../firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function Users() {
   const { users, addUser, updateUser, deleteUser, currentUser } = useApp();
@@ -13,6 +15,7 @@ export default function Users() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     role: 'staff' as 'super_admin' | 'inventory_manager' | 'inventory_clerk' | 'approver' | 'staff',
     department: '',
     employeeId: '',
@@ -33,6 +36,17 @@ export default function Users() {
         ...formData,
       });
     } else {
+      // Create Firebase Auth user with password
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        console.log('Firebase Auth user created:', userCredential.user.email);
+      } catch (error) {
+        console.error('Error creating Firebase Auth user:', error);
+        alert('Error creating user: ' + (error as any).message);
+        return;
+      }
+
+      // Create Firestore user document
       await addUser({
         id: generateId('user'),
         name: formData.name,
@@ -48,6 +62,7 @@ export default function Users() {
     setFormData({
       name: '',
       email: '',
+      password: '',
       role: 'staff',
       department: '',
       employeeId: '',
@@ -61,6 +76,7 @@ export default function Users() {
     setFormData({
       name: user.name,
       email: user.email,
+      password: '',
       role: user.role,
       department: user.department || '',
       employeeId: user.employeeId || '',
@@ -78,6 +94,7 @@ export default function Users() {
     setFormData({
       name: '',
       email: '',
+      password: '',
       role: 'staff',
       department: '',
       employeeId: '',
@@ -120,6 +137,7 @@ export default function Users() {
                 setFormData({
                   name: '',
                   email: '',
+                  password: '',
                   role: 'staff',
                   department: '',
                   employeeId: '',
@@ -179,6 +197,20 @@ export default function Users() {
                       placeholder="e.g., user@dimah.mv"
                     />
                   </div>
+                  {!editingUser && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                      <input
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        required
+                        minLength={6}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        placeholder="Min 6 characters"
+                      />
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
                     <select
@@ -250,6 +282,7 @@ export default function Users() {
                       setFormData({
                         name: '',
                         email: '',
+                        password: '',
                         role: 'staff',
                         department: '',
                         employeeId: '',
