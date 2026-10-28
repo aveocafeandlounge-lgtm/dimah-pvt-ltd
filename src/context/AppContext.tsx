@@ -106,12 +106,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       };
 
-      loadFirestoreData();
-
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         console.log('Auth state changed:', firebaseUser ? 'User logged in' : 'No user');
         if (firebaseUser) {
           console.log('Firebase user:', firebaseUser.email, firebaseUser.uid);
+          // Load Firestore data only after user is authenticated
+          await loadFirestoreData();
           // Fetch user data from Firestore
           try {
             const userDoc = await getDocs(query(collection(db, 'users'), where('email', '==', firebaseUser.email)));
