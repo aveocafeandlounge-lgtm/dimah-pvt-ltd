@@ -245,6 +245,7 @@ export default function RequestItems() {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Request No</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requester</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
@@ -257,6 +258,7 @@ export default function RequestItems() {
                       <tr key={request.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{request.requestNumber}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(request.requestDate).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.requesterName || 'Unknown'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.items.length}</td>
                         <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{request.purpose}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">

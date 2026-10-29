@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Plus, Clock } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
-import type { RequestStatus } from '../types';
+import type { RequestStatus, StockRequest } from '../types';
 import Navigation from '../components/Navigation';
 
 export default function Requests() {
   const navigate = useNavigate();
-  const { stockRequests, currentUser, deleteStockRequest } = useApp();
+  const { stockRequests, currentUser, deleteStockRequest, staff } = useApp();
   const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>('all');
 
   const filteredRequests = stockRequests.filter(req => {
@@ -18,6 +18,13 @@ export default function Requests() {
 
   const canCreate = currentUser?.role === 'staff' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'super_admin';
   const canDelete = currentUser?.role === 'super_admin';
+
+  const getRequesterName = (request: StockRequest) => {
+    if (request.requesterName) return request.requesterName;
+    // Fallback: look up staff by requestingStaff ID
+    const staffMember = staff.find(s => s.id === request.requestingStaff);
+    return staffMember?.name || 'Unknown';
+  };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this request?')) {
@@ -137,7 +144,7 @@ export default function Requests() {
                         {formatDate(request.requestDate)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {request.requesterName || 'Unknown'}
+                        {getRequesterName(request)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {request.department}
