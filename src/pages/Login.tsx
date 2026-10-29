@@ -52,10 +52,6 @@ export default function Login() {
     }
   };
 
-  const demoUsers = [
-    { email: 'manager@dimah.com', role: 'Super Admin', name: 'Super Admin' },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -112,29 +108,6 @@ export default function Login() {
               Sign In
             </button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 mb-3 font-medium">Quick Login:</p>
-            <div className="space-y-2">
-              {demoUsers.map((user) => (
-                <button
-                  key={user.email}
-                  type="button"
-                  onClick={() => {
-                    setEmail(user.email);
-                    if (login(user.email)) {
-                      navigate('/dashboard');
-                    }
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-lg transition"
-                >
-                  <div className="font-medium text-gray-900">{user.name}</div>
-                  <div className="text-gray-600">{user.email}</div>
-                  <div className="text-blue-600 text-xs">{user.role}</div>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-6">
