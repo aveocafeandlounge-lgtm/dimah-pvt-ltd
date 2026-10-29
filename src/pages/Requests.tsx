@@ -8,7 +8,7 @@ import Navigation from '../components/Navigation';
 
 export default function Requests() {
   const navigate = useNavigate();
-  const { stockRequests, currentUser, staff, deleteStockRequest } = useApp();
+  const { stockRequests, currentUser, deleteStockRequest } = useApp();
   const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>('all');
 
   const filteredRequests = stockRequests.filter(req => {
@@ -46,9 +46,9 @@ export default function Requests() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       <Navigation />
-      <div className="flex-1 lg:ml-64 mt-14 lg:mt-0">
+      <div className="flex-1">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8">
+        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-8 mt-14 lg:mt-0">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Requests</h1>
@@ -128,57 +128,51 @@ export default function Requests() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {filteredRequests.map((request) => {
-                    // Find requester by employeeId or staff ID
-                    const requester = staff.find(s => 
-                      s.employeeId === request.employeeId || s.id === request.requestingStaff
-                    );
-                    return (
-                      <tr key={request.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="font-medium text-gray-900">{request.requestNumber}</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {formatDate(request.requestDate)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {requester?.name || request.requestingStaff || 'Unknown'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {request.department}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                          {request.purpose}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {request.items.length} item(s)
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(request.status)}`}>
-                            {request.status.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex justify-end gap-2">
+                  {filteredRequests.map((request) => (
+                    <tr key={request.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="font-medium text-gray-900">{request.requestNumber}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {formatDate(request.requestDate)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {request.requesterName || 'Unknown'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {request.department}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                        {request.purpose}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {request.items.length} item(s)
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(request.status)}`}>
+                          {request.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => {/* TODO: Add view details modal */}}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            View Details
+                          </button>
+                          {canDelete && (
                             <button
-                              onClick={() => {/* TODO: Add view details modal */}}
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                              onClick={() => handleDelete(request.id)}
+                              className="text-red-600 hover:text-red-800 text-sm font-medium"
                             >
-                              View Details
+                              Delete
                             </button>
-                            {canDelete && (
-                              <button
-                                onClick={() => handleDelete(request.id)}
-                                className="text-red-600 hover:text-red-800 text-sm font-medium"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

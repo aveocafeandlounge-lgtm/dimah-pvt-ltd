@@ -14,7 +14,7 @@ interface RequestItem {
 
 export default function RequestItems() {
   const navigate = useNavigate();
-  const { inventoryItems, stockRequests, currentUser, staff, addStockRequest, updateStockRequest, deleteStockRequest } = useApp();
+  const { inventoryItems, stockRequests, currentUser, addStockRequest, updateStockRequest, deleteStockRequest } = useApp();
   const [requiredDate, setRequiredDate] = useState(formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
   const [purpose, setPurpose] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
@@ -27,22 +27,14 @@ export default function RequestItems() {
   const [viewMode, setViewMode] = useState<'list' | 'new'>('list');
   const [editingRequest, setEditingRequest] = useState<StockRequest | null>(null);
 
-  // Find staff record for logged-in user
-  const currentStaff = staff.find(s => s.employeeId === currentUser?.employeeId);
-
-  // Auto-fill requester information from logged-in user's staff record
+  // Auto-fill requester information from logged-in user
   useEffect(() => {
-    if (currentStaff) {
-      setRequesterName(currentStaff.name);
-      setRequesterEmployeeId(currentStaff.employeeId);
-      setRequesterDepartment(currentStaff.department);
-    } else if (currentUser) {
-      // Fallback to user data if no staff record found
+    if (currentUser) {
       setRequesterName(currentUser.name);
       setRequesterEmployeeId(currentUser.employeeId || '');
       setRequesterDepartment(currentUser.department || '');
     }
-  }, [currentStaff, currentUser]);
+  }, [currentUser]);
 
   const addItem = () => {
     setRequestItems([
@@ -116,6 +108,7 @@ export default function RequestItems() {
         priority,
         additionalNotes: additionalNotes || undefined,
         requestingStaff: currentUser?.id || '',
+        requesterName: requesterName,
         employeeId: requesterEmployeeId,
         department: requesterDepartment,
         updatedAt: new Date(),
@@ -133,6 +126,7 @@ export default function RequestItems() {
         id: generateId('req'),
         requestNumber,
         requestingStaff: currentUser?.id || '',
+        requesterName: requesterName,
         employeeId: requesterEmployeeId,
         department: requesterDepartment,
         requestDate: new Date(),
@@ -335,7 +329,7 @@ export default function RequestItems() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
               <input
                 type="text"
-                value={requesterName || currentStaff?.name || currentUser?.name || ''}
+                value={requesterName || currentUser?.name || ''}
                 onChange={(e) => setRequesterName(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -346,7 +340,7 @@ export default function RequestItems() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID *</label>
               <input
                 type="text"
-                value={requesterEmployeeId || currentStaff?.employeeId || ''}
+                value={requesterEmployeeId || currentUser?.employeeId || ''}
                 onChange={(e) => setRequesterEmployeeId(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -357,7 +351,7 @@ export default function RequestItems() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
               <input
                 type="text"
-                value={requesterDepartment || currentStaff?.department || currentUser?.department || ''}
+                value={requesterDepartment || currentUser?.department || ''}
                 onChange={(e) => setRequesterDepartment(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"

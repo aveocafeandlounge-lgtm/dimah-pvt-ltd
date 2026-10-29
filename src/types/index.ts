@@ -122,6 +122,7 @@ export interface StockRequest {
   id: string;
   requestNumber: string;
   requestingStaff: string;
+  requesterName: string;
   employeeId: string;
   department: string;
   requestDate: Date;
