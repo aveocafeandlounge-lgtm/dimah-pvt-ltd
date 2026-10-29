@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Plus, Trash2, ArrowLeft, Check, Package, AlertTriangle, Clock } from 'lucide-react';
@@ -27,7 +27,22 @@ export default function RequestItems() {
   const [viewMode, setViewMode] = useState<'list' | 'new'>('list');
   const [editingRequest, setEditingRequest] = useState<StockRequest | null>(null);
 
-  const currentStaff = staff.find(s => s.id === currentUser?.id);
+  // Find staff record for logged-in user
+  const currentStaff = staff.find(s => s.employeeId === currentUser?.employeeId);
+
+  // Auto-fill requester information from logged-in user's staff record
+  useEffect(() => {
+    if (currentStaff) {
+      setRequesterName(currentStaff.name);
+      setRequesterEmployeeId(currentStaff.employeeId);
+      setRequesterDepartment(currentStaff.department);
+    } else if (currentUser) {
+      // Fallback to user data if no staff record found
+      setRequesterName(currentUser.name);
+      setRequesterEmployeeId(currentUser.employeeId || '');
+      setRequesterDepartment(currentUser.department || '');
+    }
+  }, [currentStaff, currentUser]);
 
   const addItem = () => {
     setRequestItems([

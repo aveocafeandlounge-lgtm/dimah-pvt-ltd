@@ -8,7 +8,7 @@ import Navigation from '../components/Navigation';
 
 export default function Requests() {
   const navigate = useNavigate();
-  const { stockRequests, currentUser, staff } = useApp();
+  const { stockRequests, currentUser, staff, deleteStockRequest } = useApp();
   const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>('all');
 
   const filteredRequests = stockRequests.filter(req => {
@@ -17,6 +17,13 @@ export default function Requests() {
   });
 
   const canCreate = currentUser?.role === 'staff' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'super_admin';
+  const canDelete = currentUser?.role === 'super_admin';
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this request?')) {
+      await deleteStockRequest(id);
+    }
+  };
 
   const getStatusColor = (status: RequestStatus) => {
     switch (status) {
@@ -122,7 +129,10 @@ export default function Requests() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredRequests.map((request) => {
-                    const requester = staff.find(s => s.id === request.requestingStaff);
+                    // Find requester by employeeId or staff ID
+                    const requester = staff.find(s => 
+                      s.employeeId === request.employeeId || s.id === request.requestingStaff
+                    );
                     return (
                       <tr key={request.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -132,7 +142,7 @@ export default function Requests() {
                           {formatDate(request.requestDate)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {requester?.name || 'Unknown'}
+                          {requester?.name || request.requestingStaff || 'Unknown'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {request.department}
@@ -149,12 +159,22 @@ export default function Requests() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <button
-                            onClick={() => {/* TODO: Add view details modal */}}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                          >
-                            View Details
-                          </button>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {/* TODO: Add view details modal */}}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              View Details
+                            </button>
+                            {canDelete && (
+                              <button
+                                onClick={() => handleDelete(request.id)}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
