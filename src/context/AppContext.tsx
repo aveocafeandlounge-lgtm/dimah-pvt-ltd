@@ -79,7 +79,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const loadFirestoreData = async () => {
         try {
           console.log('Loading Firestore data...');
-          const [inventorySnap, categoriesSnap, suppliersSnap, departmentsSnap, staffSnap, requestsSnap, receiptsSnap, issuesSnap, transactionsSnap] = await Promise.all([
+          const [inventorySnap, categoriesSnap, suppliersSnap, departmentsSnap, staffSnap, requestsSnap, receiptsSnap, issuesSnap, transactionsSnap, usersSnap] = await Promise.all([
             getDocs(collection(db, 'inventory')),
             getDocs(collection(db, 'categories')),
             getDocs(collection(db, 'suppliers')),
@@ -89,6 +89,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             getDocs(collection(db, 'stockReceipts')),
             getDocs(collection(db, 'stockIssues')),
             getDocs(collection(db, 'stockTransactions')),
+            getDocs(collection(db, 'users')),
           ]);
 
           setInventoryItems(inventorySnap.docs.map(doc => doc.data() as InventoryItem));
@@ -100,7 +101,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setStockReceipts(receiptsSnap.docs.map(doc => doc.data() as StockReceipt));
           setStockIssues(issuesSnap.docs.map(doc => doc.data() as StockIssue));
           setStockTransactions(transactionsSnap.docs.map(doc => doc.data() as StockTransaction));
+          _setUsers(usersSnap.docs.map(doc => doc.data() as User));
           console.log('Firestore data loaded successfully');
+          console.log('Users loaded from Firestore:', usersSnap.docs.length, usersSnap.docs.map(doc => doc.data() as User));
         } catch (error) {
           console.error('Error loading Firestore data:', error);
         }
@@ -538,12 +541,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ) as User;
         await setDoc(doc(db, 'users', cleanUser.id), cleanUser);
         console.log('User saved to Firestore:', cleanUser.id);
+        // Reload users from Firestore after adding
+        const usersSnap = await getDocs(collection(db, 'users'));
+        _setUsers(usersSnap.docs.map(doc => doc.data() as User));
+        console.log('Users reloaded after add:', usersSnap.docs.length);
       } catch (error) {
         console.error('Error saving user to Firestore:', error);
         throw error;
       }
+    } else {
+      _setUsers(prev => [...prev, user]);
     }
-    _setUsers(prev => [...prev, user]);
   };
 
   const updateUser = async (id: string, updates: Partial<User>) => {

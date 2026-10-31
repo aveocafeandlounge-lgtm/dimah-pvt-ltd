@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Plus, Search, Shield } from 'lucide-react';
-import { generateId } from '../utils/helpers';
 import type { User } from '../types';
 import Navigation from '../components/Navigation';
 import { auth } from '../firebase';
@@ -21,6 +20,9 @@ export default function Users() {
     employeeId: '',
   });
 
+  console.log('Users page - Current users:', users);
+  console.log('Users page - Current user:', currentUser);
+
   const canManage = currentUser?.role === 'manager';
 
   const filteredUsers = users.filter(user =>
@@ -30,25 +32,30 @@ export default function Users() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleSubmit called, editingUser:', editingUser);
     
     if (editingUser) {
+      console.log('Updating user:', editingUser.id);
       await updateUser(editingUser.id, {
         ...formData,
       });
     } else {
+      console.log('Creating new user with email:', formData.email);
       // Create Firebase Auth user with password
+      let firebaseUserId: string;
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        console.log('Firebase Auth user created:', userCredential.user.email);
+        console.log('Firebase Auth user created:', userCredential.user.email, 'UID:', userCredential.user.uid);
+        firebaseUserId = userCredential.user.uid;
       } catch (error) {
         console.error('Error creating Firebase Auth user:', error);
         alert('Error creating user: ' + (error as any).message);
         return;
       }
 
-      // Create Firestore user document
-      await addUser({
-        id: generateId('user'),
+      // Create Firestore user document using Firebase Auth UID
+      const newUser = {
+        id: firebaseUserId,
         name: formData.name,
         email: formData.email,
         role: formData.role,
@@ -56,7 +63,10 @@ export default function Users() {
         employeeId: formData.employeeId || undefined,
         isActive: true,
         createdAt: new Date(),
-      });
+      };
+      console.log('Adding user to Firestore:', newUser);
+      await addUser(newUser);
+      console.log('User added successfully');
     }
 
     setFormData({
