@@ -14,8 +14,8 @@ export default function Inventory() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-  const canEdit = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'inventory_clerk';
-  const canDelete = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canEdit = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
+  const canDelete = currentUser?.role === 'manager';
 
   const units: Unit[] = ['piece', 'box', 'pack', 'ream', 'bottle', 'roll', 'set', 'carton', 'kilogram', 'litre', 'other'];
 

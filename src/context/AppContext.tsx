@@ -121,17 +121,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
               setCurrentUser(userData);
             } else {
               console.warn('No user document found in Firestore for email:', firebaseUser.email);
-              // Set default super admin role for manager@dimah.com
+              // Set default manager role for manager@dimah.com
               if (firebaseUser.email === 'manager@dimah.com') {
                 const defaultUser: User = {
                   id: firebaseUser.uid,
                   email: firebaseUser.email,
-                  name: 'Super Admin',
-                  role: 'super_admin',
+                  name: 'Manager',
+                  role: 'manager',
                   isActive: true,
                   createdAt: new Date(),
                 };
-                console.log('Setting default super admin role for manager@dimah.com');
+                console.log('Setting default manager role for manager@dimah.com');
                 setCurrentUser(defaultUser);
               }
             }

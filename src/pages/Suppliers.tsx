@@ -23,7 +23,7 @@ export default function Suppliers() {
     notes: '',
   });
 
-  const canManage = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canManage = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
 
   const filteredSuppliers = suppliers.filter(supp =>
     supp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

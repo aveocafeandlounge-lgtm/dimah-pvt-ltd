@@ -25,7 +25,7 @@ export default function ReceiveStock() {
   const [viewMode, setViewMode] = useState<'list' | 'new'>('list');
   const [editingReceipt, setEditingReceipt] = useState<StockReceipt | null>(null);
 
-  const canReceive = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canReceive = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
 
   const addItem = () => {
     setReceiptItems([

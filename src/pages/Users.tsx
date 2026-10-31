@@ -16,12 +16,12 @@ export default function Users() {
     name: '',
     email: '',
     password: '',
-    role: 'staff' as 'super_admin' | 'inventory_manager' | 'inventory_clerk' | 'approver' | 'staff',
+    role: 'staff' as 'staff' | 'inventory_staff' | 'manager',
     department: '',
     employeeId: '',
   });
 
-  const canManage = currentUser?.role === 'super_admin';
+  const canManage = currentUser?.role === 'manager';
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -220,10 +220,8 @@ export default function Users() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                     >
                       <option value="staff">Staff</option>
-                      <option value="inventory_clerk">Inventory Clerk</option>
-                      <option value="inventory_manager">Inventory Manager</option>
-                      <option value="approver">Approver</option>
-                      <option value="super_admin">Super Admin</option>
+                      <option value="inventory_staff">Inventory Staff</option>
+                      <option value="manager">Manager</option>
                     </select>
                   </div>
                   <div>

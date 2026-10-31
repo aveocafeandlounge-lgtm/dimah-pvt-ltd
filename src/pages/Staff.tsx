@@ -20,7 +20,7 @@ export default function Staff() {
     phone: '',
   });
 
-  const canManage = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canManage = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
 
   const filteredStaff = staff.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

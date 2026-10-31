@@ -18,7 +18,7 @@ export default function Adjustments() {
     referenceNumber: '',
   });
 
-  const canManage = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canManage = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
 
   const adjustmentTransactions = stockTransactions.filter(trans => 
     trans.transactionType === 'staff_return' || trans.transactionType === 'supplier_return' || trans.transactionType === 'damage' || trans.transactionType === 'adjustment'

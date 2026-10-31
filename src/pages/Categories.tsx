@@ -14,8 +14,8 @@ export default function Categories() {
     description: '',
   });
 
-  const canManage = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'inventory_clerk';
-  const canDelete = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canManage = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
+  const canDelete = currentUser?.role === 'manager';
 
   const filteredCategories = categories;
 

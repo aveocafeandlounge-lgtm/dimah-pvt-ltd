@@ -25,17 +25,17 @@ export default function Navigation() {
   };
 
   const navItems = [
-    { title: 'Dashboard', icon: FolderOpen, path: '/dashboard', roles: ['super_admin', 'inventory_manager', 'inventory_clerk', 'approver', 'staff'] },
-    { title: 'Inventory', icon: Package, path: '/inventory', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
-    { title: 'Categories', icon: Layers, path: '/categories', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
-    { title: 'Staff', icon: Users, path: '/staff', roles: ['super_admin'] },
-    { title: 'Departments', icon: Building2, path: '/departments', roles: ['super_admin'] },
-    { title: 'Suppliers', icon: Truck, path: '/suppliers', roles: ['super_admin', 'inventory_manager'] },
-    { title: 'Users', icon: CheckCircle, path: '/users', roles: ['super_admin'] },
-    { title: 'Requests', icon: Package, path: '/requests', roles: ['super_admin', 'inventory_manager', 'inventory_clerk', 'staff'] },
-    { title: 'Approvals', icon: CheckCircle, path: '/approvals', roles: ['super_admin', 'inventory_manager', 'approver'] },
-    { title: 'Stock Ledger', icon: TrendingUp, path: '/stock/ledger', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
-    { title: 'Reports', icon: TrendingUp, path: '/reports', roles: ['super_admin', 'inventory_manager', 'inventory_clerk'] },
+    { title: 'Dashboard', icon: FolderOpen, path: '/dashboard', roles: ['staff', 'inventory_staff', 'manager'] },
+    { title: 'Inventory', icon: Package, path: '/inventory', roles: ['inventory_staff', 'manager'] },
+    { title: 'Categories', icon: Layers, path: '/categories', roles: ['inventory_staff', 'manager'] },
+    { title: 'Staff', icon: Users, path: '/staff', roles: ['manager'] },
+    { title: 'Departments', icon: Building2, path: '/departments', roles: ['manager'] },
+    { title: 'Suppliers', icon: Truck, path: '/suppliers', roles: ['inventory_staff', 'manager'] },
+    { title: 'Users', icon: CheckCircle, path: '/users', roles: ['manager'] },
+    { title: 'Requests', icon: Package, path: '/requests', roles: ['staff', 'inventory_staff', 'manager'] },
+    { title: 'Approvals', icon: CheckCircle, path: '/approvals', roles: ['manager'] },
+    { title: 'Stock Ledger', icon: TrendingUp, path: '/stock/ledger', roles: ['inventory_staff', 'manager'] },
+    { title: 'Reports', icon: TrendingUp, path: '/reports', roles: ['inventory_staff', 'manager'] },
   ];
 
   const currentPath = window.location.pathname;

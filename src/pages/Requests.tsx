@@ -16,8 +16,8 @@ export default function Requests() {
     return req.status === statusFilter;
   });
 
-  const canCreate = currentUser?.role === 'staff' || currentUser?.role === 'inventory_manager' || currentUser?.role === 'super_admin';
-  const canDelete = currentUser?.role === 'super_admin';
+  const canCreate = currentUser?.role === 'staff' || currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
+  const canDelete = currentUser?.role === 'manager';
 
   const getRequesterName = (request: StockRequest) => {
     if (request.requesterName) return request.requesterName;

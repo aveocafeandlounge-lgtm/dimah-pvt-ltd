@@ -23,7 +23,7 @@ export default function IssueStock() {
   const [showVoucher, setShowVoucher] = useState(false);
   const [issuedVoucher, setIssuedVoucher] = useState<StockIssue | null>(null);
 
-  const canIssue = currentUser?.role === 'super_admin' || currentUser?.role === 'inventory_manager';
+  const canIssue = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
 
   const approvedRequests = stockRequests.filter(req =>
     req.status === 'approved' || req.status === 'ready_for_collection' || req.status === 'partially_approved'

@@ -15,7 +15,7 @@ export default function Approvals() {
   const [itemApprovals, setItemApprovals] = useState<Record<string, number>>({});
   const [statusFilter, setStatusFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
 
-  const canApprove = currentUser?.role === 'super_admin' || currentUser?.role === 'approver' || currentUser?.role === 'inventory_manager';
+  const canApprove = currentUser?.role === 'manager';
 
   const filteredRequests = stockRequests.filter(req => {
     if (statusFilter === 'pending') return req.status === 'submitted' || req.status === 'pending_approval';

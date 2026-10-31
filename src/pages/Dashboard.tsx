@@ -78,12 +78,9 @@ export default function Dashboard() {
 
   const canPerformAction = (path: string) => {
     if (!currentUser) return false;
-    if (currentUser.role === 'super_admin') return true;
-    if (currentUser.role === 'inventory_manager') {
+    if (currentUser.role === 'manager') return true;
+    if (currentUser.role === 'inventory_staff') {
       return ['/inventory/add', '/stock/receive', '/stock/issue', '/reports'].includes(path);
-    }
-    if (currentUser.role === 'approver') {
-      return ['/approvals', '/reports'].includes(path);
     }
     if (currentUser.role === 'staff') {
       return ['/requests/new', '/reports'].includes(path);

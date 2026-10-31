@@ -5,8 +5,8 @@ export const demoUsers: User[] = [
   {
     id: 'user-1',
     email: 'manager@dimah.com',
-    name: 'Super Admin',
-    role: 'super_admin',
+    name: 'Manager',
+    role: 'manager',
     department: 'Management',
     isActive: true,
     createdAt: new Date('2026-01-01'),
