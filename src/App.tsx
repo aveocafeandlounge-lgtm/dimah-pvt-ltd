@@ -8,6 +8,7 @@ import Suppliers from './pages/Suppliers';
 import Departments from './pages/Departments';
 import Staff from './pages/Staff';
 import Users from './pages/Users';
+import Warehouses from './pages/Warehouses';
 import ReceiveStock from './pages/ReceiveStock';
 import RequestItems from './pages/RequestItems';
 import Requests from './pages/Requests';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/departments" element={<Departments />} />
           <Route path="/staff" element={<Staff />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/warehouses" element={<Warehouses />} />
           <Route path="/stock/receive" element={<ReceiveStock />} />
           <Route path="/requests" element={<Requests />} />
           <Route path="/requests/new" element={<RequestItems />} />

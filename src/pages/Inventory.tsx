@@ -8,7 +8,7 @@ import Navigation from '../components/Navigation';
 
 export default function Inventory() {
   const navigate = useNavigate();
-  const { inventoryItems, categories, suppliers, currentUser, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useApp();
+  const { inventoryItems, categories, suppliers, warehouses, currentUser, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -37,6 +37,7 @@ export default function Inventory() {
       name: formData.get('name') as string,
       code: formData.get('code') as string,
       category: formData.get('category') as string,
+      warehouseId: formData.get('warehouseId') as string,
       description: formData.get('description') as string || undefined,
       unit: formData.get('unit') as Unit,
       currentStock: Number(formData.get('currentStock')),
@@ -194,6 +195,23 @@ export default function Inventory() {
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Warehouse *</label>
+                <select
+                  name="warehouseId"
+                  defaultValue={editingItem?.warehouseId}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                  <option value="">Select Warehouse</option>
+                  {warehouses.map((wh) => (
+                    <option key={wh.id} value={wh.id}>
+                      {wh.name}
                     </option>
                   ))}
                 </select>

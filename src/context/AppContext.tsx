@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { User, InventoryItem, StockRequest, StockReceipt, StockIssue, StockTransaction, Department, Staff, Category, Supplier } from '../types';
+import type { User, InventoryItem, StockRequest, StockReceipt, StockIssue, StockTransaction, Department, Staff, Category, Supplier, Warehouse } from '../types';
 import { demoUsers, demoInventoryItems, demoStockRequests, demoStockReceipts, demoStockIssues, demoStockTransactions, demoDepartments, demoStaff, demoCategories, demoSuppliers } from '../utils/demoData';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -19,6 +19,7 @@ interface AppContextType {
   staff: Staff[];
   categories: Category[];
   suppliers: Supplier[];
+  warehouses: Warehouse[];
   login: (email: string) => boolean;
   logout: () => Promise<void>;
   addUser: (user: User) => Promise<void>;
@@ -47,6 +48,9 @@ interface AppContextType {
   addStaff: (staffMember: Staff) => Promise<void>;
   updateStaff: (id: string, staffMember: Partial<Staff>) => Promise<void>;
   deleteStaff: (id: string) => Promise<void>;
+  addWarehouse: (warehouse: Warehouse) => Promise<void>;
+  updateWarehouse: (id: string, warehouse: Partial<Warehouse>) => Promise<void>;
+  deleteWarehouse: (id: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -64,6 +68,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [staff, setStaff] = useState<Staff[]>(demoStaff);
   const [categories, setCategories] = useState<Category[]>(demoCategories);
   const [suppliers, setSuppliers] = useState<Supplier[]>(demoSuppliers);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
   // Load from localStorage on mount (demo mode) or Firebase auth
   useEffect(() => {
@@ -79,7 +84,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const loadFirestoreData = async () => {
         try {
           console.log('Loading Firestore data...');
-          const [inventorySnap, categoriesSnap, suppliersSnap, departmentsSnap, staffSnap, requestsSnap, receiptsSnap, issuesSnap, transactionsSnap, usersSnap] = await Promise.all([
+          const [inventorySnap, categoriesSnap, suppliersSnap, departmentsSnap, staffSnap, requestsSnap, receiptsSnap, issuesSnap, transactionsSnap, usersSnap, warehousesSnap] = await Promise.all([
             getDocs(collection(db, 'inventory')),
             getDocs(collection(db, 'categories')),
             getDocs(collection(db, 'suppliers')),
@@ -90,6 +95,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             getDocs(collection(db, 'stockIssues')),
             getDocs(collection(db, 'stockTransactions')),
             getDocs(collection(db, 'users')),
+            getDocs(collection(db, 'warehouses')),
           ]);
 
           setInventoryItems(inventorySnap.docs.map(doc => doc.data() as InventoryItem));
@@ -102,6 +108,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setStockIssues(issuesSnap.docs.map(doc => doc.data() as StockIssue));
           setStockTransactions(transactionsSnap.docs.map(doc => doc.data() as StockTransaction));
           _setUsers(usersSnap.docs.map(doc => doc.data() as User));
+          setWarehouses(warehousesSnap.docs.map(doc => doc.data() as Warehouse));
           console.log('Firestore data loaded successfully');
           console.log('Users loaded from Firestore:', usersSnap.docs.length, usersSnap.docs.map(doc => doc.data() as User));
         } catch (error) {
@@ -529,6 +536,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStaff(prev => prev.filter(s => s.id !== id));
   };
 
+  const addWarehouse = async (warehouse: Warehouse) => {
+    if (!isDemoMode) {
+      if (!currentUser) {
+        console.error('Cannot save warehouse: No authenticated user');
+        throw new Error('User must be authenticated to save data');
+      }
+      try {
+        const cleanWarehouse = Object.fromEntries(
+          Object.entries(warehouse).filter(([_, v]) => v !== undefined)
+        ) as Warehouse;
+        await setDoc(doc(db, 'warehouses', cleanWarehouse.id), cleanWarehouse);
+        console.log('Warehouse saved to Firestore:', cleanWarehouse.id);
+        const warehousesSnap = await getDocs(collection(db, 'warehouses'));
+        setWarehouses(warehousesSnap.docs.map(doc => doc.data() as Warehouse));
+      } catch (error) {
+        console.error('Error saving warehouse to Firestore:', error);
+        throw error;
+      }
+    } else {
+      setWarehouses(prev => [...prev, warehouse]);
+    }
+  };
+
+  const updateWarehouse = async (id: string, updates: Partial<Warehouse>) => {
+    if (!isDemoMode) {
+      try {
+        const cleanUpdates = Object.fromEntries(
+          Object.entries({ ...updates, updatedAt: new Date() }).filter(([_, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, 'warehouses', id), cleanUpdates);
+        console.log('Warehouse updated in Firestore:', id);
+      } catch (error) {
+        console.error('Error updating warehouse in Firestore:', error);
+        throw error;
+      }
+    }
+    setWarehouses(prev => prev.map(w => w.id === id ? { ...w, ...updates, updatedAt: new Date() } : w));
+  };
+
+  const deleteWarehouse = async (id: string) => {
+    if (!isDemoMode) {
+      try {
+        await deleteDoc(doc(db, 'warehouses', id));
+        console.log('Warehouse deleted from Firestore:', id);
+      } catch (error) {
+        console.error('Error deleting warehouse from Firestore:', error);
+        throw error;
+      }
+    }
+    setWarehouses(prev => prev.filter(w => w.id !== id));
+  };
+
   const addUser = async (user: User) => {
     if (!isDemoMode) {
       if (!currentUser) {
@@ -626,6 +685,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addStaff,
         updateStaff,
         deleteStaff,
+        warehouses,
+        addWarehouse,
+        updateWarehouse,
+        deleteWarehouse,
       }}
     >
       {children}

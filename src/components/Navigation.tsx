@@ -12,6 +12,7 @@ import {
   Users,
   Building2,
   Truck,
+  Warehouse as WarehouseIcon,
 } from 'lucide-react';
 
 export default function Navigation() {
@@ -30,6 +31,7 @@ export default function Navigation() {
     { title: 'Categories', icon: Layers, path: '/categories', roles: ['inventory_staff', 'manager'] },
     { title: 'Staff', icon: Users, path: '/staff', roles: ['manager'] },
     { title: 'Departments', icon: Building2, path: '/departments', roles: ['manager'] },
+    { title: 'Warehouses', icon: WarehouseIcon, path: '/warehouses', roles: ['manager'] },
     { title: 'Suppliers', icon: Truck, path: '/suppliers', roles: ['inventory_staff', 'manager'] },
     { title: 'Users', icon: CheckCircle, path: '/users', roles: ['manager'] },
     { title: 'Requests', icon: Package, path: '/requests', roles: ['staff', 'inventory_staff', 'manager'] },

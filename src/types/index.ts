@@ -23,6 +23,16 @@ export interface Department {
   updatedAt?: Date;
 }
 
+// Warehouse
+export interface Warehouse {
+  id: string;
+  name: string;
+  location: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
 // Staff
 export interface Staff {
   id: string;
@@ -58,6 +68,7 @@ export interface InventoryItem {
   name: string;
   code: string;
   category: string;
+  warehouseId: string;
   description?: string;
   unit: Unit;
   currentStock: number;
