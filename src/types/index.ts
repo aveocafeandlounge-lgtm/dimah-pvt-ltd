@@ -68,7 +68,7 @@ export interface InventoryItem {
   name: string;
   code: string;
   category: string;
-  warehouseId: string;
+  warehouseId?: string;
   description?: string;
   unit: Unit;
   currentStock: number;

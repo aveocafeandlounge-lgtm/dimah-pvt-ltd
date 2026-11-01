@@ -201,14 +201,13 @@ export default function Inventory() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Warehouse *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Warehouse</label>
                 <select
                   name="warehouseId"
-                  defaultValue={editingItem?.warehouseId}
-                  required
+                  defaultValue={editingItem?.warehouseId || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 >
-                  <option value="">Select Warehouse</option>
+                  <option value="">No Warehouse</option>
                   {warehouses.map((wh) => (
                     <option key={wh.id} value={wh.id}>
                       {wh.name}
