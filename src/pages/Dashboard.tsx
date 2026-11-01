@@ -11,11 +11,11 @@ import {
   TrendingUp,
   ArrowRight,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import Navigation from '../components/Navigation';
 
 export default function Dashboard() {
-  const { currentUser, inventoryItems, stockRequests, stockIssues, stockReceipts, stockTransactions } = useApp();
+  const { currentUser, inventoryItems, stockRequests, stockIssues, stockReceipts, stockTransactions, categories } = useApp();
   const navigate = useNavigate();
 
   // Calculate dashboard stats
@@ -37,8 +37,14 @@ export default function Dashboard() {
   }).length;
 
   // Chart data
+  const categoryMap = categories.reduce((acc, cat) => {
+    acc[cat.id] = cat.name;
+    return acc;
+  }, {} as Record<string, string>);
+
   const stockByCategory = inventoryItems.reduce((acc, item) => {
-    acc[item.category] = (acc[item.category] || 0) + item.currentStock;
+    const categoryName = categoryMap[item.category] || item.category;
+    acc[categoryName] = (acc[categoryName] || 0) + item.currentStock;
     return acc;
   }, {} as Record<string, number>);
 
@@ -212,7 +218,7 @@ export default function Dashboard() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -222,6 +228,7 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </div>
