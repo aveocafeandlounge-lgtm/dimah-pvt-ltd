@@ -6,16 +6,31 @@ import type { Warehouse } from '../types';
 import Navigation from '../components/Navigation';
 
 export default function Warehouses() {
-  const { warehouses, addWarehouse, updateWarehouse, deleteWarehouse, currentUser } = useApp();
+  const { warehouses, addWarehouse, updateWarehouse, deleteWarehouse, currentUser, inventoryItems } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     location: '',
   });
 
+  console.log('Warehouses page - current warehouses:', warehouses);
+  console.log('Warehouses page - current user:', currentUser);
+
   const canManage = currentUser?.role === 'manager';
+
+  // Calculate item count for each warehouse
+  const warehouseItemCount = warehouses.reduce((acc, warehouse) => {
+    acc[warehouse.id] = inventoryItems.filter(item => item.warehouseId === warehouse.id).length;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Get items for selected warehouse
+  const warehouseItems = selectedWarehouse
+    ? inventoryItems.filter(item => item.warehouseId === selectedWarehouse)
+    : [];
 
   const filteredWarehouses = warehouses.filter(warehouse =>
     warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -24,20 +39,26 @@ export default function Warehouses() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleSubmit called - formData:', formData);
+    console.log('handleSubmit called - editingWarehouse:', editingWarehouse);
     
     if (editingWarehouse) {
+      console.log('Updating warehouse:', editingWarehouse.id);
       updateWarehouse(editingWarehouse.id, {
         ...formData,
         updatedAt: new Date(),
       });
     } else {
-      addWarehouse({
+      console.log('Adding new warehouse');
+      const newWarehouse = {
         id: generateId('warehouse'),
         name: formData.name,
         location: formData.location,
         isActive: true,
         createdAt: new Date(),
-      });
+      };
+      console.log('New warehouse data:', newWarehouse);
+      addWarehouse(newWarehouse);
     }
 
     setFormData({ name: '', location: '' });
@@ -187,9 +208,56 @@ export default function Warehouses() {
                   </div>
                 )}
               </div>
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Items assigned:</span>
+                  <span className="text-sm font-semibold text-gray-900">{warehouseItemCount[warehouse.id] || 0}</span>
+                </div>
+                {warehouseItemCount[warehouse.id] > 0 && (
+                  <button
+                    onClick={() => setSelectedWarehouse(warehouse.id)}
+                    className="mt-2 w-full text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                  >
+                    View items →
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Selected Warehouse Items */}
+        {selectedWarehouse && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Items in {warehouses.find(w => w.id === selectedWarehouse)?.name}
+              </h2>
+              <button
+                onClick={() => setSelectedWarehouse(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                Close
+              </button>
+            </div>
+            {warehouseItems.length === 0 ? (
+              <p className="text-gray-600">No items assigned to this warehouse yet.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {warehouseItems.map((item) => (
+                  <div key={item.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                    <p className="text-sm text-gray-500">{item.code}</p>
+                    <div className="mt-2 text-sm">
+                      <span className="text-gray-600">Stock:</span>
+                      <span className="font-medium text-gray-900 ml-1">{item.currentStock} {item.unit}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {filteredWarehouses.length === 0 && (
           <div className="text-center py-12">

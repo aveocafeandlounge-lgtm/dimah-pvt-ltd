@@ -537,6 +537,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addWarehouse = async (warehouse: Warehouse) => {
+    console.log('addWarehouse called - warehouse:', warehouse);
+    console.log('addWarehouse called - isDemoMode:', isDemoMode);
+    console.log('addWarehouse called - currentUser:', currentUser);
+    
     if (!isDemoMode) {
       if (!currentUser) {
         console.error('Cannot save warehouse: No authenticated user');
@@ -546,15 +550,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const cleanWarehouse = Object.fromEntries(
           Object.entries(warehouse).filter(([_, v]) => v !== undefined)
         ) as Warehouse;
+        console.log('Saving warehouse to Firestore:', cleanWarehouse);
         await setDoc(doc(db, 'warehouses', cleanWarehouse.id), cleanWarehouse);
         console.log('Warehouse saved to Firestore:', cleanWarehouse.id);
         const warehousesSnap = await getDocs(collection(db, 'warehouses'));
-        setWarehouses(warehousesSnap.docs.map(doc => doc.data() as Warehouse));
+        console.log('Warehouses snapshot:', warehousesSnap.docs.length);
+        const loadedWarehouses = warehousesSnap.docs.map(doc => doc.data() as Warehouse);
+        console.log('Loaded warehouses:', loadedWarehouses);
+        setWarehouses(loadedWarehouses);
       } catch (error) {
         console.error('Error saving warehouse to Firestore:', error);
         throw error;
       }
     } else {
+      console.log('Demo mode - adding warehouse locally');
       setWarehouses(prev => [...prev, warehouse]);
     }
   };
