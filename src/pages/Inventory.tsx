@@ -13,6 +13,9 @@ export default function Inventory() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [showBulkAssign, setShowBulkAssign] = useState(false);
+  const [targetWarehouse, setTargetWarehouse] = useState('');
 
   const canEdit = currentUser?.role === 'inventory_staff' || currentUser?.role === 'manager';
   const canDelete = currentUser?.role === 'manager';
@@ -76,6 +79,42 @@ export default function Inventory() {
     }
   };
 
+  const handleSelectItem = (id: string) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.size === filteredItems.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(filteredItems.map(item => item.id)));
+    }
+  };
+
+  const handleBulkAssign = async () => {
+    if (!targetWarehouse) {
+      alert('Please select a warehouse');
+      return;
+    }
+
+    for (const itemId of selectedItems) {
+      await updateInventoryItem(itemId, { warehouseId: targetWarehouse });
+    }
+
+    setSelectedItems(new Set());
+    setTargetWarehouse('');
+    setShowBulkAssign(false);
+    alert(`Assigned ${selectedItems.size} items to warehouse`);
+  };
+
   const getStockStatus = (item: InventoryItem) => {
     if (item.currentStock === 0) return { label: 'Out of Stock', color: 'bg-red-100 text-red-800' };
     if (item.currentStock <= item.minStockLevel) return { label: 'Low Stock', color: 'bg-yellow-100 text-yellow-800' };
@@ -94,6 +133,14 @@ export default function Inventory() {
               <p className="text-gray-600 text-sm">Manage office stationery and supplies</p>
             </div>
           <div className="flex items-center gap-2">
+            {selectedItems.size > 0 && (
+              <button
+                onClick={() => setShowBulkAssign(true)}
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+              >
+                <span>Assign {selectedItems.size} items to Warehouse</span>
+              </button>
+            )}
             <button
               onClick={() => navigate('/categories')}
               className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
@@ -118,7 +165,7 @@ export default function Inventory() {
       <div className="max-w-7xl mx-auto p-4 lg:p-8">
         {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -141,6 +188,15 @@ export default function Inventory() {
                 </option>
               ))}
             </select>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedItems.size === filteredItems.length && filteredItems.length > 0}
+                onChange={handleSelectAll}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Select All</span>
+            </label>
           </div>
         </div>
 
@@ -347,6 +403,46 @@ export default function Inventory() {
           </div>
         )}
 
+        {/* Bulk Assign Modal */}
+        {showBulkAssign && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Assign {selectedItems.size} items to Warehouse</h2>
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Warehouse</label>
+                <select
+                  value={targetWarehouse}
+                  onChange={(e) => setTargetWarehouse(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                  <option value="">Select Warehouse</option>
+                  {warehouses.map((wh) => (
+                    <option key={wh.id} value={wh.id}>
+                      {wh.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={handleBulkAssign}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              >
+                Assign
+              </button>
+              <button
+                onClick={() => {
+                  setShowBulkAssign(false);
+                  setTargetWarehouse('');
+                  setSelectedItems(new Set());
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Inventory Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
@@ -354,9 +450,15 @@ export default function Inventory() {
             const category = categories.find(c => c.id === item.category);
 
             return (
-              <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+              <div key={item.id} className={`bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition ${selectedItems.has(item.id) ? 'ring-2 ring-indigo-500' : ''}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Package className="w-6 h-6 text-blue-600" />
                     </div>
